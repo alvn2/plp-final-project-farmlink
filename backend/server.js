@@ -25,7 +25,7 @@ const allowedOrigins = [
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
   process.env.FRONTEND_URL || 'https://farmlinkkenya.vercel.app',
-  'https://farmlinkkenya.vercel.app/register'
+  'https://farmlinkkenya.vercel.app/register',
   'https://farmlinkkenya.vercel.app/login',
 ].filter(Boolean);
 console.log('✅ Allowed origins:', allowedOrigins);
