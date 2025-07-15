@@ -14,7 +14,7 @@ export const useAuth = () => {
 };
 
 // Configure axios defaults
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://plp-final-project-farmlink.onrender.com/';
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Auth Provider Component
 export const AuthProvider = ({ children }) => {
