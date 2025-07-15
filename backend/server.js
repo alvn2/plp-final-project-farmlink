@@ -24,17 +24,11 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
-  process.env.FRONTEND_URL || 'https://farmlinkkenya.vercel.app' // Ensure this matches your deployed frontend
+  process.env.FRONTEND_URL || 'https://farmlinkkenya.vercel.app' // Explicitly set the new frontend URL
 ].filter(Boolean);
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS error: Origin ${origin} not allowed`));
-    }
-  },
+  origin: allowedOrigins, // Allow all listed origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
