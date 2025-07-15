@@ -24,7 +24,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL || ''
 ].filter(Boolean);
 
 app.use(cors({
@@ -83,7 +83,6 @@ app.use((error, req, res, next) => {
       : error.message
   };
 
-  // Handle specific error types
   if (error.name === 'ValidationError') {
     status = 400;
     response = {
@@ -92,7 +91,7 @@ app.use((error, req, res, next) => {
     };
   }
 
-  if (error.code && error.code === 11000) {
+  if (error.code === 11000) {
     status = 400;
     const field = Object.keys(error.keyValue)[0];
     response = { error: `${field} already exists`, field };
@@ -115,7 +114,6 @@ app.use((error, req, res, next) => {
 const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGO_URI;
-
     if (!mongoURI) {
       throw new Error('MONGO_URI is not defined in environment variables');
     }
@@ -123,13 +121,17 @@ const connectDB = async () => {
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      auth: {
+        username: process.env.MONGO_USERNAME || 'alvnmugo',
+        password: process.env.MONGO_PASSWORD || ''
+      }
     });
 
     console.log('✅ MongoDB connected successfully');
     console.log(`📊 Connected to database: ${mongoose.connection.name}`);
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message || error);
-    process.exit(1); // Exit with failure
+    process.exit(1);
   }
 };
 
@@ -152,10 +154,9 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await connectDB();
-
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`🌐 API URL: http://localhost:${PORT}`);
+      console.log(`🌐 API URL: https://plp-final-project-farmlink.onrender.com`);
       console.log(`🌱 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (error) {

@@ -62,55 +62,9 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  // Demo credentials helper
-  const fillDemoCredentials = () => {
-    setFormData({
-      email: 'james@farmlink.ke',
-      password: 'password123'
-    });
-  };
-
-  if (isLoading) {
-    return <LoadingSpinner fullScreen text="Signing you in..." />;
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        
-        {/* Header */}
-        <div className="text-center">
-          <div className="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <i className="fas fa-seedling text-white text-2xl"></i>
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back!
-          </h2>
-          <p className="text-lg text-gray-600 mb-1">
-            Karibu tena! - Sign in to your farm
-          </p>
-          <p className="text-sm text-gray-500">
-            Access your crops and farming tasks
-          </p>
-        </div>
-
-        {/* Demo Credentials Helper */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-blue-800">Try Demo Account</p>
-              <p className="text-xs text-blue-600">Use sample farmer data</p>
-            </div>
-            <button
-              type="button"
-              onClick={fillDemoCredentials}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded transition-colors"
-            >
-              Fill Demo Data
-            </button>
-          </div>
-        </div>
-
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
         {/* Login Form */}
         <form className="space-y-6" onSubmit={handleSubmit}>
           
