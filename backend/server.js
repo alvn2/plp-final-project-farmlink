@@ -24,8 +24,9 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
-  
-  process.env.FRONTEND_URL || 'https://farmlinkkenya.vercel.app'
+  process.env.FRONTEND_URL || 'https://farmlinkkenya.vercel.app',
+  'https://farmlinkkenya.vercel.app/register'
+  'https://farmlinkkenya.vercel.app/login',
 ].filter(Boolean);
 console.log('✅ Allowed origins:', allowedOrigins);
 
@@ -125,10 +126,6 @@ const connectDB = async () => {
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      auth: {
-        username: process.env.MONGO_USERNAME || 'alvnmugo',
-        password: process.env.MONGO_PASSWORD || ''
-      }
     });
 
     console.log('✅ MongoDB connected successfully');
