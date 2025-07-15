@@ -19,20 +19,26 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration
-const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:5173',
-    process.env.FRONTEND_URL || ''
-  ].filter(Boolean), // remove any falsy values
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
-};
-
-app.use(cors(corsOptions));
+}));
 
 // Health check route
 app.get('/', (req, res) => {
@@ -63,12 +69,18 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use((error, req, res, next) => {
-  console.error('🚨 Global Error Handler:', error.message || error);
+  console.error('🚨 Global Error Handler:', {
+    message: error.message,
+    stack: error.stack,
+    name: error.name
+  });
 
   let status = 500;
   let response = {
     error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'production' ? 'Something went wrong' : error.message
+    message: process.env.NODE_ENV === 'production' 
+      ? 'Something went wrong' 
+      : error.message
   };
 
   // Handle specific error types
@@ -96,7 +108,7 @@ app.use((error, req, res, next) => {
     response = { error: 'Token has expired' };
   }
 
-  res.status(status).json(response);
+  return res.status(status).json(response);
 });
 
 // MongoDB connection
