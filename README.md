@@ -3,8 +3,8 @@
 ## Overview
 FarmLink is a full-stack web application designed to help smallholder farmers in Kenya manage their crops and farm tasks efficiently. It provides a user-friendly dashboard, crop and task management, and insightful analytics to improve farm productivity.
 
-- **Frontend:** React, React Router, Chart.js, Tailwind CSS
-- **Backend:** Node.js, Express, MongoDB, JWT authentication
+- **Frontend:** React, React Router, Chart.js, Tailwind CSS ([see frontend/README.md](frontend/README.md))
+- **Backend:** Node.js, Express, MongoDB, JWT authentication ([see backend/README.md](backend/README.md))
 
 ---
 
@@ -28,21 +28,10 @@ FarmLink is a full-stack web application designed to help smallholder farmers in
 ### Installation
 
 #### Backend
-```bash
-cd backend
-npm install
-cp .env.example .env # Set your MONGO_URI and JWT_SECRET
-npm run dev # or npm start
-```
+See [backend/README.md](backend/README.md) for backend setup and details.
 
 #### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The frontend will run on [http://localhost:5173](http://localhost:5173) by default.
+See [frontend/README.md](frontend/README.md) for frontend setup and details.
 
 ---
 
