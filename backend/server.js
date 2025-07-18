@@ -12,7 +12,7 @@ const authRoutes = require('./routes/auth');
 const cropRoutes = require('./routes/crops');
 const taskRoutes = require('./routes/tasks');
 const monitoringRoutes = require('./routes/monitoring');
-const aiChatRoutes = require('./routes/aiChat');
+const aiChatRoutes = require('./routes/aichat');
 
 // Import middleware
 const { globalErrorHandler } = require('./middleware/errorHandler');
