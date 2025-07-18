@@ -32,7 +32,7 @@ const TaskForm = () => {
   const fetchCrops = async () => {
     try {
       const response = await axios.get('/api/crops');
-      setCrops(response.data.crops || []);
+      setCrops(response.data.data?.crops || response.data.crops || []);
     } catch (error) {
       console.error('Fetch crops error:', error);
       setError('Failed to load crops. Please try again.');
@@ -43,8 +43,7 @@ const TaskForm = () => {
     try {
       setLoading(true);
       const response = await axios.get(`/api/tasks/${id}`);
-      const task = response.data.task;
-      
+      const task = response.data.data?.task || response.data.task;
       setFormData({
         cropId: task.cropId._id || task.cropId,
         description: task.description,

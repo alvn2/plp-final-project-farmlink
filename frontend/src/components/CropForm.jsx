@@ -34,7 +34,7 @@ const CropForm = () => {
     try {
       setLoading(true);
       const response = await axios.get(`/api/crops/${id}`);
-      const crop = response.data.crop;
+      const crop = response.data.data?.crop || response.data.crop;
       
       setFormData({
         name: crop.name,

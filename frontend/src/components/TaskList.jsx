@@ -57,12 +57,12 @@ const TaskList = () => {
     params.append('sort', sortBy);
 
     const response = await axios.get(`/api/tasks?${params.toString()}`);
-    return response.data.tasks || [];
+    return response.data.data?.tasks || response.data.tasks || [];
   };
 
   const fetchCrops = async () => {
     const response = await axios.get('/api/crops');
-    return response.data.crops || [];
+    return response.data.data?.crops || response.data.crops || [];
   };
 
   const deleteTask = async (taskId, taskDescription) => {
@@ -244,117 +244,113 @@ const TaskList = () => {
         </div>
 
         {/* Tasks List */}
-        {tasks.length > 0 ? (
+        {Array.isArray(tasks) && tasks.filter(Boolean).length > 0 ? (
           <div className="space-y-4">
-            {tasks.map((task) => (
-              <div 
-                key={task._id} 
-                className={`card hover:shadow-lg transition-shadow duration-300 ${
-                  isOverdue(task.dueDate, task.status) ? 'border-l-4 border-red-500' : ''
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    
-                    {/* Task Header */}
-                    <div className="flex items-center space-x-3 mb-3">
-                      <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                        <i className="fas fa-tasks text-yellow-600"></i>
-                      </div>
-                      <div className="flex-1">
-                        <h3
-                          className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'} line-clamp-2 overflow-hidden text-ellipsis`}
-                          title={task.description}
-                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                        >
-                          {task.description}
-                        </h3>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className={getStatusBadge(task.status)}>
-                            {task.status}
-                          </span>
-                          <span className={getPriorityBadge(task.priority)}>
-                            {task.priority} Priority
-                          </span>
-                          {isOverdue(task.dueDate, task.status) && (
-                            <span className="badge badge-danger">
-                              <i className="fas fa-exclamation-triangle mr-1"></i>
-                              Overdue
-                            </span>
-                          )}
+            {tasks.filter(Boolean).map((task) => {
+              if (!task || !task._id) return null;
+              return (
+                <div 
+                  key={task._id} 
+                  className={`card hover:shadow-lg transition-shadow duration-300 ${
+                    isOverdue(task.dueDate, task.status) ? 'border-l-4 border-red-500' : ''
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      {/* Task Header */}
+                      <div className="flex items-center space-x-3 mb-3">
+                        <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                          <i className="fas fa-tasks text-yellow-600"></i>
                         </div>
-                      </div>
-                    </div>
-
-                    {/* Task Details */}
-                    <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      <div className="flex items-center">
-                        <i className="fas fa-seedling mr-2 w-4"></i>
-                        <span>Crop: {task.cropId?.name || 'Unknown'}</span>
-                      </div>
-                      
-                      <div className="flex items-center">
-                        <i className="fas fa-calendar-alt mr-2 w-4"></i>
-                        <span>Due: {formatDate(task.dueDate)}</span>
-                      </div>
-
-                      <div className="flex items-center">
-                        <i className="fas fa-clock mr-2 w-4"></i>
-                        <span>
-                          {task.status === 'Completed' 
-                            ? `Completed ${task.completedAt ? formatDate(task.completedAt) : 'recently'}`
-                            : getDaysUntil(task.dueDate) >= 0 
-                              ? `${getDaysUntil(task.dueDate)} days left`
-                              : `${Math.abs(getDaysUntil(task.dueDate))} days overdue`
-                          }
-                        </span>
-                      </div>
-                      {task.notes && (
-                        <div className="md:col-span-3 w-full overflow-hidden">
-                          <span
-                            className="block w-full break-all line-clamp-2 overflow-hidden text-ellipsis"
-                            title={task.notes}
-                            style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', maxWidth: '100%' }}
+                        <div className="flex-1">
+                          <h3
+                            className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'} line-clamp-2 overflow-hidden text-ellipsis`}
+                            title={task.description}
+                            style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
                           >
-                            <i className="fas fa-sticky-note mr-1"></i>
-                            {task.notes.length > 200 ? `${task.notes.slice(0, 200)}...` : task.notes}
+                            {task.description}
+                          </h3>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <span className={getStatusBadge(task.status)}>
+                              {task.status}
+                            </span>
+                            <span className={getPriorityBadge(task.priority)}>
+                              {task.priority} Priority
+                            </span>
+                            {isOverdue(task.dueDate, task.status) && (
+                              <span className="badge badge-danger">
+                                <i className="fas fa-exclamation-triangle mr-1"></i>
+                                Overdue
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {/* Task Details */}
+                      <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <div className="flex items-center">
+                          <i className="fas fa-seedling mr-2 w-4"></i>
+                          <span>Crop: {task.cropId?.name || 'Unknown'}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <i className="fas fa-calendar-alt mr-2 w-4"></i>
+                          <span>Due: {formatDate(task.dueDate)}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <i className="fas fa-clock mr-2 w-4"></i>
+                          <span>
+                            {task.status === 'Completed' 
+                              ? `Completed ${task.completedAt ? formatDate(task.completedAt) : 'recently'}`
+                              : getDaysUntil(task.dueDate) >= 0 
+                                ? `${getDaysUntil(task.dueDate)} days left`
+                                : `${Math.abs(getDaysUntil(task.dueDate))} days overdue`
+                            }
                           </span>
                         </div>
-                      )}
+                        {task.notes && (
+                          <div className="md:col-span-3 w-full overflow-hidden">
+                            <span
+                              className="block w-full break-all line-clamp-2 overflow-hidden text-ellipsis"
+                              title={task.notes}
+                              style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', maxWidth: '100%' }}
+                            >
+                              <i className="fas fa-sticky-note mr-1"></i>
+                              {task.notes.length > 200 ? `${task.notes.slice(0, 200)}...` : task.notes}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center space-x-2 ml-4">
-                    {task.status === 'Pending' && (
-                      <button
-                        onClick={() => completeTask(task._id)}
-                        className="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors"
-                        title="Mark as completed"
+                    {/* Action Buttons */}
+                    <div className="flex items-center space-x-2 ml-4">
+                      {task.status === 'Pending' && (
+                        <button
+                          onClick={() => completeTask(task._id)}
+                          className="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors"
+                          title="Mark as completed"
+                        >
+                          <i className="fas fa-check"></i>
+                        </button>
+                      )}
+                      <Link
+                        to={`/tasks/edit/${task._id}`}
+                        className="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-colors"
+                        title="Edit task"
                       >
-                        <i className="fas fa-check"></i>
+                        <i className="fas fa-edit"></i>
+                      </Link>
+                      <button
+                        onClick={() => deleteTask(task._id, task.description)}
+                        className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                        title="Delete task"
+                      >
+                        <i className="fas fa-trash"></i>
                       </button>
-                    )}
-                    
-                    <Link
-                      to={`/tasks/edit/${task._id}`}
-                      className="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-colors"
-                      title="Edit task"
-                    >
-                      <i className="fas fa-edit"></i>
-                    </Link>
-
-                    <button
-                      onClick={() => deleteTask(task._id, task.description)}
-                      className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                      title="Delete task"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-16">

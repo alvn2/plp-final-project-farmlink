@@ -28,7 +28,7 @@ const CropList = () => {
       params.append('sort', sortBy);
 
       const response = await axios.get(`/api/crops?${params.toString()}`);
-      setCrops(response.data.crops || []);
+      setCrops(response.data.data?.crops || response.data.crops || []);
     } catch (error) {
       console.error('Fetch crops error:', error);
       setError('Failed to load crops. Please try again.');
