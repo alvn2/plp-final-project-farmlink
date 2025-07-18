@@ -13,6 +13,12 @@
     background-color: #fafafa;
     color: #1f2937;
     line-height: 1.6;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  }
+
+  .dark body {
+    background-color: #111827;
+    color: #f9fafb;
   }
   
   * {
@@ -29,7 +35,7 @@
   }
   
   .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200;
   }
   
   .btn-danger {
@@ -37,19 +43,19 @@
   }
   
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
   }
   
   .select-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white;
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-soft border border-gray-100 p-6;
+    @apply bg-white rounded-lg shadow-soft border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700 transition-colors duration-200;
   }
   
   .card-header {
-    @apply border-b border-gray-200 pb-4 mb-4;
+    @apply border-b border-gray-200 pb-4 mb-4 dark:border-gray-700;
   }
   
   .badge {
@@ -57,23 +63,48 @@
   }
   
   .badge-primary {
-    @apply bg-primary-100 text-primary-800;
+    @apply bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200;
   }
   
   .badge-secondary {
-    @apply bg-gray-100 text-gray-800;
+    @apply bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200;
   }
   
   .badge-success {
-    @apply bg-green-100 text-green-800;
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
   }
   
   .badge-warning {
-    @apply bg-yellow-100 text-yellow-800;
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
   }
   
   .badge-danger {
-    @apply bg-red-100 text-red-800;
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+  }
+
+  /* Dark mode specific utilities */
+  .dark-mode-text {
+    @apply dark:text-white text-gray-900;
+  }
+
+  .dark-mode-text-secondary {
+    @apply dark:text-gray-300 text-gray-600;
+  }
+
+  .dark-mode-text-muted {
+    @apply dark:text-gray-400 text-gray-500;
+  }
+
+  .dark-mode-bg {
+    @apply dark:bg-gray-800 bg-white;
+  }
+
+  .dark-mode-bg-secondary {
+    @apply dark:bg-gray-700 bg-gray-50;
+  }
+
+  .dark-mode-border {
+    @apply dark:border-gray-700 border-gray-200;
   }
 }
 
@@ -165,13 +196,25 @@
   border-radius: 3px;
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
 ::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 /* Responsive design helpers */

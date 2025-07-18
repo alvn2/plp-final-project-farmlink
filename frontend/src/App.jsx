@@ -12,6 +12,10 @@ import TaskForm from './components/TaskForm';
 import Profile from './components/Profile';
 import LoadingSpinner from './components/LoadingSpinner';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { DarkModeProvider, useDarkMode } from './context/DarkModeContext';
+import { ToastContainer } from './components/Toast';
+import Terms from './components/Terms';
+import Privacy from './components/Privacy';
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -38,13 +42,14 @@ const PublicRoute = ({ children }) => {
 // Main App component
 function AppContent() {
   const { user, loading } = useAuth();
+  const { isDarkMode } = useDarkMode();
 
   if (loading) {
     return <LoadingSpinner />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen transition-colors duration-200 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* Navigation */}
       <Navbar />
 
@@ -74,6 +79,8 @@ function AppContent() {
               </PublicRoute>
             } 
           />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
 
           {/* Protected Routes */}
           <Route 
@@ -145,13 +152,13 @@ function AppContent() {
           <Route 
             path="*" 
             element={
-              <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <div className={`min-h-screen flex items-center justify-center transition-colors duration-200 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
                 <div className="text-center">
                   <div className="mb-4">
                     <i className="fas fa-exclamation-triangle text-6xl text-yellow-500"></i>
                   </div>
-                  <h1 className="text-4xl font-bold text-gray-900 mb-2">404</h1>
-                  <p className="text-xl text-gray-600 mb-6">Ukurasa haujapatikana - Page not found</p>
+                  <h1 className={`text-4xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>404</h1>
+                  <p className={`text-xl mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Ukurasa haujapatikana - Page not found</p>
                   <button 
                     onClick={() => window.history.back()} 
                     className="btn-primary"
@@ -167,9 +174,9 @@ function AppContent() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-6 mt-auto">
+      <footer className={`border-t py-6 mt-auto transition-colors duration-200 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-gray-600">
+          <div className={`text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             <p className="mb-2">
               <i className="fas fa-seedling text-primary-600 mr-2"></i>
               FarmLink - Msimamizi wa Mazao
@@ -192,9 +199,13 @@ function AppContent() {
 // Main App with providers
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ToastContainer>
+      <DarkModeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </DarkModeProvider>
+    </ToastContainer>
   );
 }
 

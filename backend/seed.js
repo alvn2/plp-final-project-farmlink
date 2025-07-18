@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+// const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 
 // Load environment variables
@@ -20,7 +20,7 @@ const sampleUsers = [
   },
   {
     name: 'Grace Wanjiku',
-    email: 'grace@farmlink.ke', 
+    email: 'grace@farmlink.ke',
     password: 'password123',
     farmLocation: 'Nakuru County'
   }
@@ -67,7 +67,7 @@ const sampleTasks = [
   {
     description: 'Weed beans field thoroughly',
     dueDate: new Date('2025-07-18'),
-    status: 'Pending', 
+    status: 'Pending',
     priority: 'Medium'
   },
   {
@@ -90,15 +90,15 @@ const sampleTasks = [
   }
 ];
 
-const seedDatabase = async () => {
+const seedDatabase = async() => {
   try {
     // Connect to MongoDB
     const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/farmlink';
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
+      useUnifiedTopology: true
     });
-    
+
     console.log('🔌 Connected to MongoDB for seeding');
 
     // Clear existing data
@@ -111,7 +111,7 @@ const seedDatabase = async () => {
     // Create users
     console.log('👥 Creating sample users...');
     const createdUsers = [];
-    
+
     for (const userData of sampleUsers) {
       const user = new User(userData);
       await user.save();
@@ -122,7 +122,7 @@ const seedDatabase = async () => {
     // Create crops for first user
     console.log('🌱 Creating sample crops...');
     const createdCrops = [];
-    
+
     for (const cropData of sampleCrops) {
       const crop = new Crop({
         ...cropData,
@@ -135,24 +135,24 @@ const seedDatabase = async () => {
 
     // Create tasks linked to crops
     console.log('📝 Creating sample tasks...');
-    
+
     for (let i = 0; i < sampleTasks.length; i++) {
       const taskData = sampleTasks[i];
       const cropIndex = i % createdCrops.length; // Distribute tasks across crops
-      
+
       const task = new Task({
         ...taskData,
         userId: createdUsers[0]._id,
         cropId: createdCrops[cropIndex]._id
       });
-      
+
       await task.save();
       console.log(`✅ Created task: ${task.description} (${task.status})`);
     }
 
     // Add some data for second user
     console.log('🌾 Creating data for second user...');
-    
+
     const secondUserCrop = new Crop({
       name: 'Maize',
       plantingDate: new Date('2025-02-10'),
@@ -178,12 +178,12 @@ const seedDatabase = async () => {
     console.log(`👥 Users: ${await User.countDocuments()}`);
     console.log(`🌱 Crops: ${await Crop.countDocuments()}`);
     console.log(`📝 Tasks: ${await Task.countDocuments()}`);
-    
+
     console.log('\n🔐 Test User Credentials:');
     console.log('Email: james@farmlink.ke');
     console.log('Password: password123');
     console.log('Location: Kisumu County');
-    
+
     console.log('\nEmail: grace@farmlink.ke');
     console.log('Password: password123');
     console.log('Location: Nakuru County');

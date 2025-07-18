@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useToast } from '../components/Toast';
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -14,13 +15,15 @@ export const useAuth = () => {
 };
 
 // Configure axios defaults
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://plp-final-project-farmlink.onrender.com ';
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://plp-final-project-farmlink.onrender.com';
+axios.defaults.timeout = 10000; // 10 second timeout
 
 // Auth Provider Component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const toast = useToast();
 
   // Set auth token in axios headers
   const setAuthToken = (token) => {
@@ -43,8 +46,10 @@ export const AuthProvider = ({ children }) => {
           setAuthToken(token);
           
           // Verify token and get user data
-          const response = await axios.get('/api/auth/me');
-          setUser(response.data.user);
+          const response = await axios.get('/api/auth/profile');
+          // Handle both response structures (with and without data wrapper)
+          const responseData = response.data.data || response.data;
+          setUser(responseData.user);
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -70,15 +75,34 @@ export const AuthProvider = ({ children }) => {
         password
       });
 
-      const { token, user: userData } = response.data;
+      // Handle both response structures (with and without data wrapper)
+      const responseData = response.data.data || response.data;
+      const { token, user: userData } = responseData;
       
       setAuthToken(token);
       setUser(userData);
       
-      return { success: true, message: response.data.message };
+      const successMessage = response.data.message || 'Login successful!';
+      toast.success(successMessage);
+      return { success: true, message: successMessage };
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Login failed. Please try again.';
+      console.error('Login error:', error);
+      let errorMessage = 'Login failed. Please try again.';
+      
+      if (error.response?.data) {
+        // Handle different error response structures
+        errorMessage = error.response.data.message || 
+                      error.response.data.error || 
+                      error.response.data.errorMessage || 
+                      errorMessage;
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please check your internet connection.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       setError(errorMessage);
+      toast.error(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
@@ -98,16 +122,34 @@ export const AuthProvider = ({ children }) => {
         farmLocation
       });
 
-      const { token, user: userData } = response.data;
+      // Handle both response structures (with and without data wrapper)
+      const responseData = response.data.data || response.data;
+      const { token, user: userData } = responseData;
       
       setAuthToken(token);
       setUser(userData);
       
-      return { success: true, message: response.data.message };
+      const successMessage = response.data.message || 'Registration successful!';
+      toast.success(successMessage);
+      return { success: true, message: successMessage };
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Registration failed. Please try again.';
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
+      console.error('Registration error:', error);
+      let message = "Registration failed. Please try again.";
+      
+      if (error.response?.data) {
+        // Handle different error response structures
+        message = error.response.data.message || 
+                  error.response.data.error || 
+                  error.response.data.errorMessage || 
+                  message;
+      } else if (error.code === 'ECONNABORTED') {
+        message = 'Request timed out. Please check your internet connection.';
+      } else if (error.message) {
+        message = error.message;
+      }
+      
+      toast.error(message);
+      return { success: false, error: message };
     } finally {
       setLoading(false);
     }
@@ -123,6 +165,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('farmlink_crops');
     localStorage.removeItem('farmlink_tasks');
     
+    toast.info('Logged out successfully');
     return { success: true, message: 'Logged out successfully' };
   };
 
@@ -134,12 +177,16 @@ export const AuthProvider = ({ children }) => {
 
       const response = await axios.put('/api/auth/profile', profileData);
       
-      setUser(response.data.user);
+      // Handle both response structures (with and without data wrapper)
+      const responseData = response.data.data || response.data;
+      setUser(responseData.user);
       
+      toast.success('Profile updated successfully!');
       return { success: true, message: response.data.message };
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Profile update failed. Please try again.';
       setError(errorMessage);
+      toast.error(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);

@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { validateUserRegistration } = require('../middleware/validation');
 
 const router = express.Router();
 
@@ -13,147 +14,103 @@ const generateToken = (userId) => {
 // @route   POST /api/auth/register
 // @desc    Register a new user
 // @access  Public
-router.post('/register', async (req, res) => {
+router.post('/register', validateUserRegistration, async(req, res) => {
   try {
-    const { name, email, password, farmLocation } = req.body;
-
-    // Validation
-    if (!name || !email || !password) {
-      return res.status(400).json({ 
-        error: 'Name, email, and password are required.' 
-      });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ 
-        error: 'Password must be at least 6 characters long.' 
-      });
-    }
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const { name, email, password, farmLocation, phoneNumber } = req.body;
+    // Check for duplicate email
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ 
-        error: 'User with this email already exists.' 
-      });
+      return res.status(400).json({ success: false, message: 'User with this email already exists' });
     }
-
-    // Create new user
-    const user = new User({
-      name: name.trim(),
-      email: email.toLowerCase().trim(),
-      password,
-      farmLocation: farmLocation?.trim() || ''
-    });
-
+    // Create user
+    const user = new User({ name, email, password, farmLocation, phoneNumber });
     await user.save();
-
     // Generate token
     const token = generateToken(user._id);
-
     res.status(201).json({
+      success: true,
       message: 'User registered successfully',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        farmLocation: user.farmLocation
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          farmLocation: user.farmLocation,
+          phoneNumber: user.phoneNumber
+        },
+        token
       }
     });
-
   } catch (error) {
-    console.error('Registration error:', error);
-    
     if (error.name === 'ValidationError') {
-      const messages = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ error: messages.join('. ') });
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: error.errors ? Object.values(error.errors).map(e => ({ message: e.message })) : [] });
     }
-    
-    res.status(500).json({ 
-      error: 'Server error during registration. Please try again.' 
-    });
+    res.status(500).json({ success: false, message: 'Server error', errors: [{ message: error.message }] });
   }
 });
 
 // @route   POST /api/auth/login
 // @desc    Login user
 // @access  Public
-router.post('/login', async (req, res) => {
+router.post('/login', async(req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Validation
-    if (!email || !password) {
-      return res.status(400).json({ 
-        error: 'Email and password are required.' 
-      });
+    const user = await User.findOne({ email }).select('+password');
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
-
-    // Find user
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
-    if (!user) {
-      return res.status(400).json({ 
-        error: 'Invalid email or password.' 
-      });
-    }
-
-    // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ 
-        error: 'Invalid email or password.' 
-      });
-    }
-
     // Generate token
     const token = generateToken(user._id);
-
-    res.json({
+    res.status(200).json({
+      success: true,
       message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        farmLocation: user.farmLocation
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          farmLocation: user.farmLocation,
+          phoneNumber: user.phoneNumber
+        },
+        token
       }
     });
-
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ 
-      error: 'Server error during login. Please try again.' 
-    });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// @route   GET /api/auth/me
-// @desc    Get current user profile
-// @access  Private
-router.get('/me', auth, async (req, res) => {
+// Middleware to protect routes
+const authMiddleware = require('../middleware/auth');
+// Profile route
+router.get('/profile', authMiddleware, async(req, res) => {
   try {
-    res.json({
-      user: {
-        id: req.user._id,
-        name: req.user.name,
-        email: req.user.email,
-        farmLocation: req.user.farmLocation,
-        createdAt: req.user.createdAt
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.status(200).json({
+      success: true,
+      message: 'Profile retrieved successfully',
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          farmLocation: user.farmLocation,
+          phoneNumber: user.phoneNumber
+        }
       }
     });
   } catch (error) {
-    console.error('Get profile error:', error);
-    res.status(500).json({ 
-      error: 'Server error while fetching profile.' 
-    });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 // @route   PUT /api/auth/profile
 // @desc    Update user profile
 // @access  Private
-router.put('/profile', auth, async (req, res) => {
+router.put('/profile', auth, async(req, res) => {
   try {
     const { name, farmLocation } = req.body;
 
@@ -168,20 +125,23 @@ router.put('/profile', auth, async (req, res) => {
     ).select('-password');
 
     res.json({
+      success: true,
       message: 'Profile updated successfully',
-      user
+      data: { user }
     });
 
   } catch (error) {
     console.error('Update profile error:', error);
-    
+
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ error: messages.join('. ') });
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: messages });
     }
-    
-    res.status(500).json({ 
-      error: 'Server error while updating profile.' 
+
+    res.status(500).json({
+      success: false,
+      message: 'Server error while updating profile.',
+      errors: [{ message: error.message }]
     });
   }
 });

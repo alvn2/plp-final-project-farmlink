@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import LoadingSpinner from './LoadingSpinner';
+import { useDarkMode } from '../context/DarkModeContext';
 
 const TaskList = () => {
+  const { isDarkMode } = useDarkMode();
   const [searchParams, setSearchParams] = useSearchParams();
   const [tasks, setTasks] = useState([]);
   const [crops, setCrops] = useState([]);
@@ -142,18 +144,20 @@ const TaskList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className={`min-h-screen py-8 transition-colors duration-200 ${
+      isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 <i className="fas fa-tasks mr-3"></i>
                 My Tasks - Shughuli Zangu
               </h1>
-              <p className="text-gray-600">
+              <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
                 Manage and track all your farm tasks and activities
               </p>
             </div>
@@ -168,10 +172,14 @@ const TaskList = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className={`mb-6 border rounded-lg p-4 transition-colors duration-200 ${
+            isDarkMode 
+              ? 'bg-red-900 border-red-700' 
+              : 'bg-red-50 border-red-200'
+          }`}>
             <div className="flex items-center">
               <i className="fas fa-exclamation-circle text-red-600 mr-2"></i>
-              <p className="text-red-800">{error}</p>
+              <p className={isDarkMode ? 'text-red-200' : 'text-red-800'}>{error}</p>
               <button
                 onClick={fetchData}
                 className="ml-auto btn-secondary text-sm"
@@ -183,12 +191,12 @@ const TaskList = () => {
         )}
 
         {/* Filters and Sort */}
-        <div className="bg-white rounded-lg shadow-soft border border-gray-100 p-6 mb-8">
+        <div className="card mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             
             {/* Filter by Status */}
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
+              <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Filter by Status:</label>
               <select
                 value={filter.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -202,7 +210,7 @@ const TaskList = () => {
 
             {/* Filter by Crop */}
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700">Filter by Crop:</label>
+              <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Filter by Crop:</label>
               <select
                 value={filter.cropId}
                 onChange={(e) => handleFilterChange('cropId', e.target.value)}
@@ -219,7 +227,7 @@ const TaskList = () => {
 
             {/* Sort Options */}
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700">Sort by:</label>
+              <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Sort by:</label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -254,7 +262,11 @@ const TaskList = () => {
                         <i className="fas fa-tasks text-yellow-600"></i>
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3
+                          className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'} line-clamp-2 overflow-hidden text-ellipsis`}
+                          title={task.description}
+                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                        >
                           {task.description}
                         </h3>
                         <div className="flex items-center space-x-2 mt-1">
@@ -275,7 +287,7 @@ const TaskList = () => {
                     </div>
 
                     {/* Task Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                    <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <div className="flex items-center">
                         <i className="fas fa-seedling mr-2 w-4"></i>
                         <span>Crop: {task.cropId?.name || 'Unknown'}</span>
@@ -297,6 +309,18 @@ const TaskList = () => {
                           }
                         </span>
                       </div>
+                      {task.notes && (
+                        <div className="md:col-span-3 w-full overflow-hidden">
+                          <span
+                            className="block w-full break-all line-clamp-2 overflow-hidden text-ellipsis"
+                            title={task.notes}
+                            style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', maxWidth: '100%' }}
+                          >
+                            <i className="fas fa-sticky-note mr-1"></i>
+                            {task.notes.length > 200 ? `${task.notes.slice(0, 200)}...` : task.notes}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -334,11 +358,11 @@ const TaskList = () => {
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
               <i className="fas fa-tasks text-gray-400 text-3xl"></i>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No tasks found</h3>
-            <p className="text-gray-600 mb-6">
+            <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>No tasks found</h3>
+            <p className={`mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               {filter.status === 'all' && filter.cropId === 'all'
                 ? "You haven't added any tasks yet. Start by creating your first task!"
                 : "No tasks found with the selected filters. Try changing the filters or add new tasks."
@@ -351,7 +375,7 @@ const TaskList = () => {
               </Link>
             ) : crops.length === 0 ? (
               <div className="space-y-4">
-                <p className="text-gray-500 text-sm">You need to add crops before creating tasks.</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>You need to add crops before creating tasks.</p>
                 <Link to="/crops/new" className="btn-primary">
                   <i className="fas fa-seedling mr-2"></i>
                   Add Your First Crop
@@ -377,8 +401,8 @@ const TaskList = () => {
 
         {/* Summary Stats */}
         {tasks.length > 0 && (
-          <div className="mt-8 bg-white rounded-lg shadow-soft border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="card mt-8">
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Task Summary - Muhtasari wa Shughuli
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -386,25 +410,25 @@ const TaskList = () => {
                 <p className="text-2xl font-bold text-yellow-600">
                   {tasks.filter(t => t.status === 'Pending').length}
                 </p>
-                <p className="text-sm text-gray-600">Pending</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Pending</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-green-600">
                   {tasks.filter(t => t.status === 'Completed').length}
                 </p>
-                <p className="text-sm text-gray-600">Completed</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Completed</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-red-600">
                   {tasks.filter(t => isOverdue(t.dueDate, t.status)).length}
                 </p>
-                <p className="text-sm text-gray-600">Overdue</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Overdue</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-gray-600">
                   {tasks.length}
                 </p>
-                <p className="text-sm text-gray-600">Total Tasks</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Total Tasks</p>
               </div>
             </div>
           </div>

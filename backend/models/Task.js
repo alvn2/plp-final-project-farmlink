@@ -24,14 +24,14 @@ const taskSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: {
-      values: ['Pending', 'Completed'],
-      message: 'Status must be either Pending or Completed'
+      values: ['Pending', 'Completed', 'Overdue'],
+      message: 'Status must be Pending, Completed, or Overdue'
     },
     default: 'Pending'
   },
   priority: {
     type: String,
-    enum: ['Low', 'Medium', 'High'],
+    enum: ['Low', 'Medium', 'High', 'Critical'],
     default: 'Medium'
   },
   completedAt: {

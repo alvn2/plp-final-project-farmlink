@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDarkMode } from '../context/DarkModeContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -34,7 +36,11 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-40">
+    <nav className={`shadow-lg border-b sticky top-0 z-40 transition-colors duration-200 ${
+      isDarkMode 
+        ? 'bg-gray-800 border-gray-700 text-white' 
+        : 'bg-white border-gray-200 text-gray-900'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           
@@ -48,8 +54,8 @@ const Navbar = () => {
                 <i className="fas fa-seedling text-white text-lg"></i>
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-gray-900">FarmLink</span>
-                <span className="text-xs text-gray-500 hidden sm:block">Mazao Manager</span>
+                <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>FarmLink</span>
+                <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} hidden sm:block`}>Mazao Manager</span>
               </div>
             </Link>
           </div>
@@ -64,7 +70,9 @@ const Navbar = () => {
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-2 ${
                     isActive(link.path)
                       ? 'bg-primary-100 text-primary-700'
-                      : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                      : isDarkMode
+                        ? 'text-gray-300 hover:text-primary-400 hover:bg-gray-700'
+                        : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
                   }`}
                 >
                   <i className={link.icon}></i>
@@ -79,12 +87,25 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-3">
+                {/* Dark Mode Toggle */}
+                <button
+                  onClick={toggleDarkMode}
+                  className={`p-2 rounded-md transition-colors duration-200 ${
+                    isDarkMode
+                      ? 'text-yellow-400 hover:bg-gray-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                  title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                  <i className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}></i>
+                </button>
+
                 {/* User Info */}
                 <div className="hidden sm:flex flex-col items-end">
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     {user.name}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {user.farmLocation || 'Mkulima'}
                   </span>
                 </div>
@@ -101,16 +122,35 @@ const Navbar = () => {
                 {/* Mobile Menu Button */}
                 <button
                   onClick={toggleMenu}
-                  className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className={`md:hidden p-2 rounded-md transition-colors duration-200 ${
+                    isDarkMode
+                      ? 'text-gray-300 hover:text-white hover:bg-gray-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  } focus:outline-none focus:ring-2 focus:ring-primary-500`}
                 >
                   <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-lg`}></i>
                 </button>
               </div>
             ) : (
               <div className="flex items-center space-x-3">
+                {/* Dark Mode Toggle for non-authenticated users */}
+                <button
+                  onClick={toggleDarkMode}
+                  className={`p-2 rounded-md transition-colors duration-200 ${
+                    isDarkMode
+                      ? 'text-yellow-400 hover:bg-gray-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                  title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                  <i className={`fas ${isDarkMode ? 'fa-sun' : 'fa-moon'} text-lg`}></i>
+                </button>
+
                 <Link
                   to="/login"
-                  className="text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className={`hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                  }`}
                 >
                   Login
                 </Link>
@@ -127,7 +167,9 @@ const Navbar = () => {
 
         {/* Mobile Navigation Menu */}
         {user && isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-2">
+          <div className={`md:hidden border-t py-2 transition-colors duration-200 ${
+            isDarkMode ? 'border-gray-700' : 'border-gray-200'
+          }`}>
             <div className="flex flex-col space-y-1">
               {navLinks.map((link) => (
                 <Link
@@ -137,7 +179,9 @@ const Navbar = () => {
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-3 ${
                     isActive(link.path)
                       ? 'bg-primary-100 text-primary-700'
-                      : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                      : isDarkMode
+                        ? 'text-gray-300 hover:text-primary-400 hover:bg-gray-700'
+                        : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
                   }`}
                 >
                   <i className={link.icon}></i>
@@ -146,12 +190,14 @@ const Navbar = () => {
               ))}
               
               {/* Mobile User Info */}
-              <div className="px-3 py-2 border-t border-gray-200 mt-2">
+              <div className={`px-3 py-2 border-t mt-2 transition-colors duration-200 ${
+                isDarkMode ? 'border-gray-700' : 'border-gray-200'
+              }`}>
                 <div className="text-sm">
-                  <p className="font-medium text-gray-900">{user.name}</p>
-                  <p className="text-gray-500">{user.email}</p>
+                  <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{user.name}</p>
+                  <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>{user.email}</p>
                   {user.farmLocation && (
-                    <p className="text-gray-500">{user.farmLocation}</p>
+                    <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>{user.farmLocation}</p>
                   )}
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDarkMode } from '../context/DarkModeContext';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,6 +27,7 @@ ChartJS.register(
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { isDarkMode } = useDarkMode();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dashboardData, setDashboardData] = useState({
@@ -55,16 +57,18 @@ const Dashboard = () => {
       setError('');
 
       // Fetch crops, tasks, and stats in parallel
-      const [cropsResponse, tasksResponse, upcomingTasksResponse] = await Promise.all([
+      const [cropsResponse, tasksResponse] = await Promise.all([
         axios.get('/api/crops'),
-        axios.get('/api/tasks?status=Pending'),
-        axios.get('/api/tasks/upcoming/dashboard')
+        axios.get('/api/tasks')
       ]);
 
       // Calculate stats from crops data
-      const crops = cropsResponse.data.crops || [];
-      const allTasks = tasksResponse.data.tasks || [];
-      const upcomingData = upcomingTasksResponse.data;
+      const crops = cropsResponse.data.data?.crops || cropsResponse.data.crops || [];
+      const allTasks = tasksResponse.data.data?.tasks || tasksResponse.data.tasks || [];
+
+      console.log('Dashboard Debug - Crops:', crops);
+      console.log('Dashboard Debug - All Tasks:', allTasks);
+      console.log('Dashboard Debug - Tasks Response:', tasksResponse.data);
 
       // Status counts
       const statusCounts = {
@@ -92,6 +96,22 @@ const Dashboard = () => {
         return harvestDate >= now && harvestDate <= thirtyDaysFromNow && crop.status === 'Growing';
       }).length;
 
+      const upcomingTasks = allTasks.filter(task => {
+        const dueDate = new Date(task.dueDate);
+        const now = new Date();
+        const sevenDaysFromNow = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
+        return dueDate >= now && dueDate <= sevenDaysFromNow && task.status === 'Pending';
+      }).slice(0, 5);
+
+      const overdueTasks = allTasks.filter(task => {
+        const dueDate = new Date(task.dueDate);
+        const now = new Date();
+        return dueDate < now && task.status === 'Pending';
+      }).slice(0, 5);
+
+      console.log('Dashboard Debug - Upcoming Tasks:', upcomingTasks);
+      console.log('Dashboard Debug - Overdue Tasks:', overdueTasks);
+
       setDashboardData({
         crops: crops.slice(0, 5), // Show latest 5 crops
         tasks: allTasks.slice(0, 5), // Show latest 5 tasks
@@ -101,8 +121,8 @@ const Dashboard = () => {
           upcomingHarvests,
           cropsByType
         },
-        upcomingTasks: upcomingData.upcomingTasks || [],
-        overdueTasks: upcomingData.overdueTasks || []
+        upcomingTasks,
+        overdueTasks
       });
 
     } catch (error) {
@@ -151,7 +171,8 @@ const Dashboard = () => {
         font: {
           size: 16,
           weight: 'bold'
-        }
+        },
+        color: isDarkMode ? '#f9fafb' : '#1f2937'
       }
     },
     scales: {
@@ -159,13 +180,27 @@ const Dashboard = () => {
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Number of Crops'
+          text: 'Number of Crops',
+          color: isDarkMode ? '#f9fafb' : '#1f2937'
+        },
+        grid: {
+          color: isDarkMode ? '#374151' : '#e5e7eb'
+        },
+        ticks: {
+          color: isDarkMode ? '#f9fafb' : '#1f2937'
         }
       },
       x: {
         title: {
           display: true,
-          text: 'Crop Status'
+          text: 'Crop Status',
+          color: isDarkMode ? '#f9fafb' : '#1f2937'
+        },
+        grid: {
+          color: isDarkMode ? '#374151' : '#e5e7eb'
+        },
+        ticks: {
+          color: isDarkMode ? '#f9fafb' : '#1f2937'
         }
       }
     }
@@ -204,7 +239,9 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className={`min-h-screen py-8 transition-colors duration-200 ${
+      isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Welcome Header */}
@@ -236,10 +273,14 @@ const Dashboard = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-8 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className={`mb-8 border rounded-lg p-4 transition-colors duration-200 ${
+            isDarkMode 
+              ? 'bg-red-900 border-red-700' 
+              : 'bg-red-50 border-red-200'
+          }`}>
             <div className="flex items-center">
               <i className="fas fa-exclamation-circle text-red-600 mr-2"></i>
-              <p className="text-red-800">{error}</p>
+              <p className={isDarkMode ? 'text-red-200' : 'text-red-800'}>{error}</p>
               <button
                 onClick={fetchDashboardData}
                 className="ml-auto btn-secondary text-sm"
@@ -258,9 +299,9 @@ const Dashboard = () => {
                 <i className="fas fa-seedling text-primary-600 text-xl"></i>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Crops</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.totalCrops}</p>
-                <p className="text-xs text-gray-500">Mazao yote</p>
+                <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Total Crops</p>
+                <p className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{dashboardData.stats.totalCrops}</p>
+                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Mazao yote</p>
               </div>
             </div>
           </div>
@@ -271,9 +312,9 @@ const Dashboard = () => {
                 <i className="fas fa-leaf text-green-600 text-xl"></i>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Growing</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.statusCounts.Growing}</p>
-                <p className="text-xs text-gray-500">Yanayokua</p>
+                <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Growing</p>
+                <p className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{dashboardData.stats.statusCounts.Growing}</p>
+                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Yanayokua</p>
               </div>
             </div>
           </div>
@@ -284,9 +325,9 @@ const Dashboard = () => {
                 <i className="fas fa-calendar-check text-yellow-600 text-xl"></i>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Ready</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.statusCounts['Ready to Harvest']}</p>
-                <p className="text-xs text-gray-500">Tayari kuvuna</p>
+                <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Ready</p>
+                <p className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{dashboardData.stats.statusCounts['Ready to Harvest']}</p>
+                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Tayari kuvuna</p>
               </div>
             </div>
           </div>
@@ -297,9 +338,9 @@ const Dashboard = () => {
                 <i className="fas fa-warehouse text-blue-600 text-xl"></i>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Harvested</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.stats.statusCounts.Harvested}</p>
-                <p className="text-xs text-gray-500">Zilizokolewa</p>
+                <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Harvested</p>
+                <p className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{dashboardData.stats.statusCounts.Harvested}</p>
+                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Zilizokolewa</p>
               </div>
             </div>
           </div>
@@ -314,7 +355,7 @@ const Dashboard = () => {
             {/* Farm Progress Chart */}
             <div className="card">
               <div className="card-header">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   <i className="fas fa-chart-bar mr-2"></i>
                   Farm Progress - Maendeleo ya Shamba
                 </h2>
@@ -327,7 +368,7 @@ const Dashboard = () => {
               ) : (
                 <div className="text-center py-12">
                   <i className="fas fa-seedling text-gray-300 text-4xl mb-4"></i>
-                  <p className="text-gray-500 mb-4">No crops yet - Hakuna mazao bado</p>
+                  <p className={`mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>No crops yet - Hakuna mazao bado</p>
                   <Link to="/crops/new" className="btn-primary">
                     <i className="fas fa-plus mr-2"></i>
                     Add Your First Crop
@@ -340,7 +381,7 @@ const Dashboard = () => {
             <div className="card">
               <div className="card-header">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     <i className="fas fa-seedling mr-2"></i>
                     Recent Crops - Mazao ya hivi karibuni
                   </h2>
@@ -353,14 +394,16 @@ const Dashboard = () => {
               {dashboardData.crops.length > 0 ? (
                 <div className="space-y-4">
                   {dashboardData.crops.map((crop) => (
-                    <div key={crop._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div key={crop._id} className={`flex items-center justify-between p-4 rounded-lg transition-colors duration-200 ${
+                      isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                    }`}>
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
                           <i className="fas fa-seedling text-primary-600"></i>
                         </div>
                         <div>
-                          <h3 className="font-medium text-gray-900">{crop.name}</h3>
-                          <p className="text-sm text-gray-500">
+                          <h3 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{crop.name}</h3>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                             Planted: {formatDate(crop.plantingDate)}
                           </p>
                         </div>
@@ -369,7 +412,7 @@ const Dashboard = () => {
                         <span className={getStatusBadge(crop.status)}>
                           {crop.status}
                         </span>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           {getDaysUntil(crop.expectedHarvestDate)} days to harvest
                         </p>
                       </div>
@@ -379,7 +422,7 @@ const Dashboard = () => {
               ) : (
                 <div className="text-center py-8">
                   <i className="fas fa-seedling text-gray-300 text-3xl mb-3"></i>
-                  <p className="text-gray-500 mb-4">No crops added yet</p>
+                  <p className={`mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>No crops added yet</p>
                   <Link to="/crops/new" className="btn-primary">
                     <i className="fas fa-plus mr-2"></i>
                     Add Crop
@@ -394,12 +437,16 @@ const Dashboard = () => {
             
             {/* Overdue Tasks Alert */}
             {dashboardData.overdueTasks.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className={`border rounded-lg p-4 transition-colors duration-200 ${
+                isDarkMode 
+                  ? 'bg-red-900 border-red-700' 
+                  : 'bg-red-50 border-red-200'
+              }`}>
                 <div className="flex items-center mb-3">
                   <i className="fas fa-exclamation-triangle text-red-600 mr-2"></i>
-                  <h3 className="font-semibold text-red-800">Overdue Tasks!</h3>
+                  <h3 className={`font-semibold ${isDarkMode ? 'text-red-200' : 'text-red-800'}`}>Overdue Tasks!</h3>
                 </div>
-                <p className="text-sm text-red-700 mb-3">
+                <p className={`text-sm mb-3 ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>
                   You have {dashboardData.overdueTasks.length} overdue task(s)
                 </p>
                 <Link to="/tasks" className="text-sm text-red-600 hover:text-red-700 font-medium">
@@ -412,7 +459,7 @@ const Dashboard = () => {
             <div className="card">
               <div className="card-header">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     <i className="fas fa-tasks mr-2"></i>
                     Upcoming Tasks
                   </h2>
@@ -425,15 +472,17 @@ const Dashboard = () => {
               {dashboardData.upcomingTasks.length > 0 ? (
                 <div className="space-y-3">
                   {dashboardData.upcomingTasks.map((task) => (
-                    <div key={task._id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div key={task._id} className={`flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 ${
+                      isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                    }`}>
                       <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                         <i className="fas fa-clock text-yellow-600 text-sm"></i>
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                           {task.description}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           {task.cropId?.name} • Due: {formatDate(task.dueDate)}
                         </p>
                       </div>
@@ -443,7 +492,7 @@ const Dashboard = () => {
               ) : (
                 <div className="text-center py-8">
                   <i className="fas fa-check-circle text-gray-300 text-3xl mb-3"></i>
-                  <p className="text-gray-500 mb-4">No upcoming tasks</p>
+                  <p className={`mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>No upcoming tasks</p>
                   <Link to="/tasks/new" className="btn-primary">
                     <i className="fas fa-plus mr-2"></i>
                     Add Task
@@ -455,7 +504,7 @@ const Dashboard = () => {
             {/* Quick Actions */}
             <div className="card">
               <div className="card-header">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   <i className="fas fa-bolt mr-2"></i>
                   Quick Actions - Vitendo vya haraka
                 </h2>
@@ -464,40 +513,52 @@ const Dashboard = () => {
               <div className="space-y-3">
                 <Link
                   to="/crops/new"
-                  className="flex items-center space-x-3 p-3 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'bg-primary-900 hover:bg-primary-800' 
+                      : 'bg-primary-50 hover:bg-primary-100'
+                  }`}
                 >
                   <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
                     <i className="fas fa-seedling text-white"></i>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Add New Crop</p>
-                    <p className="text-sm text-gray-500">Ongeza zao jipya</p>
+                    <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Add New Crop</p>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>Ongeza zao jipya</p>
                   </div>
                 </Link>
 
                 <Link
                   to="/tasks/new"
-                  className="flex items-center space-x-3 p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors"
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'bg-yellow-900 hover:bg-yellow-800' 
+                      : 'bg-yellow-50 hover:bg-yellow-100'
+                  }`}
                 >
                   <div className="w-10 h-10 bg-yellow-600 rounded-lg flex items-center justify-center">
                     <i className="fas fa-tasks text-white"></i>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Create Task</p>
-                    <p className="text-sm text-gray-500">Tengeneza shughuli</p>
+                    <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Create Task</p>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>Tengeneza shughuli</p>
                   </div>
                 </Link>
 
                 <Link
                   to="/profile"
-                  className="flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'bg-blue-900 hover:bg-blue-800' 
+                      : 'bg-blue-50 hover:bg-blue-100'
+                  }`}
                 >
                   <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                     <i className="fas fa-user text-white"></i>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Update Profile</p>
-                    <p className="text-sm text-gray-500">Sasisha wasifu</p>
+                    <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Update Profile</p>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>Sasisha wasifu</p>
                   </div>
                 </Link>
               </div>

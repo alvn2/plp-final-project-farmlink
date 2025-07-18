@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import LoadingSpinner from './LoadingSpinner';
+import { useDarkMode } from '../context/DarkModeContext';
 
 const CropList = () => {
+  const { isDarkMode } = useDarkMode();
   const [crops, setCrops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -92,18 +94,20 @@ const CropList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className={`min-h-screen py-8 transition-colors duration-200 ${
+      isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 <i className="fas fa-seedling mr-3"></i>
                 My Crops - Mazao Yangu
               </h1>
-              <p className="text-gray-600">
+              <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
                 Manage and track all your crops from planting to harvest
               </p>
             </div>
@@ -118,10 +122,14 @@ const CropList = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className={`mb-6 border rounded-lg p-4 transition-colors duration-200 ${
+            isDarkMode 
+              ? 'bg-red-900 border-red-700' 
+              : 'bg-red-50 border-red-200'
+          }`}>
             <div className="flex items-center">
               <i className="fas fa-exclamation-circle text-red-600 mr-2"></i>
-              <p className="text-red-800">{error}</p>
+              <p className={isDarkMode ? 'text-red-200' : 'text-red-800'}>{error}</p>
               <button
                 onClick={fetchCrops}
                 className="ml-auto btn-secondary text-sm"
@@ -133,12 +141,12 @@ const CropList = () => {
         )}
 
         {/* Filters and Sort */}
-        <div className="bg-white rounded-lg shadow-soft border border-gray-100 p-6 mb-8">
+        <div className="card mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             
             {/* Filter by Status */}
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700">Filter by Status:</label>
+              <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Filter by Status:</label>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -153,7 +161,7 @@ const CropList = () => {
 
             {/* Sort Options */}
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700">Sort by:</label>
+              <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Sort by:</label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -182,7 +190,7 @@ const CropList = () => {
                       <i className="fas fa-seedling text-primary-600 text-xl"></i>
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{crop.name}</h3>
+                      <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{crop.name}</h3>
                       <span className={getStatusBadge(crop.status)}>
                         {crop.status}
                       </span>
@@ -192,18 +200,18 @@ const CropList = () => {
 
                 {/* Crop Details */}
                 <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className={`flex items-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     <i className="fas fa-calendar-plus mr-2 w-4"></i>
                     <span>Planted: {formatDate(crop.plantingDate)}</span>
                   </div>
                   
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className={`flex items-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     <i className="fas fa-calendar-check mr-2 w-4"></i>
                     <span>Harvest: {formatDate(crop.expectedHarvestDate)}</span>
                   </div>
 
                   {crop.status === 'Growing' && (
-                    <div className="flex items-center text-sm text-gray-600">
+                    <div className={`flex items-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <i className="fas fa-clock mr-2 w-4"></i>
                       <span>
                         {getDaysUntil(crop.expectedHarvestDate) > 0 
@@ -217,11 +225,11 @@ const CropList = () => {
                   {/* Progress Bar for Growing Crops */}
                   {crop.status === 'Growing' && (
                     <div>
-                      <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                      <div className={`flex items-center justify-between text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         <span>Growth Progress</span>
                         <span>{getProgressPercentage(crop.plantingDate, crop.expectedHarvestDate)}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className={`w-full rounded-full h-2 ${isDarkMode ? 'bg-gray-600' : 'bg-gray-200'}`}>
                         <div 
                           className="bg-primary-600 h-2 rounded-full transition-all duration-300"
                           style={{ width: `${getProgressPercentage(crop.plantingDate, crop.expectedHarvestDate)}%` }}
@@ -231,8 +239,12 @@ const CropList = () => {
                   )}
 
                   {crop.notes && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-600">
+                    <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p
+                        className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} line-clamp-2 overflow-hidden text-ellipsis`}
+                        title={crop.notes}
+                        style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                      >
                         <i className="fas fa-sticky-note mr-1"></i>
                         {crop.notes}
                       </p>
@@ -241,7 +253,7 @@ const CropList = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className={`flex items-center justify-between pt-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
                   <Link
                     to={`/crops/edit/${crop._id}`}
                     className="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center"
@@ -271,11 +283,11 @@ const CropList = () => {
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
               <i className="fas fa-seedling text-gray-400 text-3xl"></i>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No crops found</h3>
-            <p className="text-gray-600 mb-6">
+            <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>No crops found</h3>
+            <p className={`mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               {filter === 'all' 
                 ? "You haven't added any crops yet. Start by adding your first crop!"
                 : `No crops found with status "${filter}". Try changing the filter.`
@@ -300,8 +312,8 @@ const CropList = () => {
 
         {/* Summary Stats */}
         {crops.length > 0 && (
-          <div className="mt-8 bg-white rounded-lg shadow-soft border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="card mt-8">
+            <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Summary - Muhtasari
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -309,25 +321,25 @@ const CropList = () => {
                 <p className="text-2xl font-bold text-primary-600">
                   {crops.filter(c => c.status === 'Growing').length}
                 </p>
-                <p className="text-sm text-gray-600">Growing</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Growing</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-yellow-600">
                   {crops.filter(c => c.status === 'Ready to Harvest').length}
                 </p>
-                <p className="text-sm text-gray-600">Ready to Harvest</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Ready to Harvest</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-blue-600">
                   {crops.filter(c => c.status === 'Harvested').length}
                 </p>
-                <p className="text-sm text-gray-600">Harvested</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Harvested</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-gray-600">
                   {crops.length}
                 </p>
-                <p className="text-sm text-gray-600">Total Crops</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Total Crops</p>
               </div>
             </div>
           </div>

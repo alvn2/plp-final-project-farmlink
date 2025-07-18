@@ -9,7 +9,7 @@ const CropForm = () => {
   const isEditing = !!id;
 
   const [formData, setFormData] = useState({
-    name: 'Maize',
+    name: '',
     plantingDate: '',
     expectedHarvestDate: '',
     notes: '',
@@ -17,17 +17,6 @@ const CropForm = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const cropTypes = [
-    'Maize',
-    'Beans', 
-    'Sukuma Wiki',
-    'Tomatoes',
-    'Onions',
-    'Carrots',
-    'Cabbage',
-    'Other'
-  ];
 
   const cropStatuses = [
     'Growing',
@@ -166,22 +155,19 @@ const CropForm = () => {
                 <i className="fas fa-seedling mr-1"></i>
                 Crop Type / Aina ya zao *
               </label>
-              <select
+              <input
                 id="name"
                 name="name"
+                type="text"
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="select-field"
-              >
-                {cropTypes.map((crop) => (
-                  <option key={crop} value={crop}>
-                    {crop}
-                  </option>
-                ))}
-              </select>
+                className="input-field"
+                placeholder="Enter crop name (e.g., Maize, Beans, Sukuma Wiki, Tomatoes, etc.)"
+                maxLength="100"
+              />
               <p className="text-xs text-gray-500 mt-1">
-                Select the type of crop you're growing
+                Type the name of the crop you're growing
               </p>
             </div>
 

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useDarkMode } from '../context/DarkModeContext';
 import LoadingSpinner from './LoadingSpinner';
 
 const Profile = () => {
   const { user, updateProfile, loading } = useAuth();
+  const { isDarkMode } = useDarkMode();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -12,6 +15,7 @@ const Profile = () => {
     name: '',
     farmLocation: ''
   });
+  const [stats, setStats] = useState({ crops: 0, tasks: 0 });
 
   const kenyanCounties = [
     'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo-Marakwet', 'Embu', 'Garissa',
@@ -31,6 +35,24 @@ const Profile = () => {
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [cropsRes, tasksRes] = await Promise.all([
+          axios.get('/api/crops'),
+          axios.get('/api/tasks')
+        ]);
+        setStats({
+          crops: cropsRes.data.data?.crops?.length || cropsRes.data.crops?.length || 0,
+          tasks: tasksRes.data.data?.tasks?.length || tasksRes.data.tasks?.length || 0
+        });
+      } catch (e) {
+        setStats({ crops: '-', tasks: '-' });
+      }
+    };
+    fetchStats();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -99,15 +121,12 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className={`min-h-screen py-8 transition-colors duration-200 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            <i className="fas fa-user mr-3"></i>
-            My Profile - Wasifu Wangu
-          </h1>
+          <h1 className={`text-3xl font-bold mb-8 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>My Profile - Wasifu Wangu</h1>
           <p className="text-gray-600">
             Manage your account information and farm details
           </p>
@@ -134,168 +153,34 @@ const Profile = () => {
         )}
 
         {/* Profile Card */}
-        <div className="card">
-          <div className="card-header">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Profile Information
-              </h2>
-              {!isEditing && (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="btn-primary"
-                >
-                  <i className="fas fa-edit mr-2"></i>
-                  Edit Profile
-                </button>
-              )}
+        <div className={`w-full max-w-xl mx-auto p-8 rounded-xl shadow-soft border mb-8 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+          <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Profile Information</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-8 mb-6">
+            <div className="flex-shrink-0 w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center text-3xl text-primary-600">
+              <i className="fas fa-user"></i>
+            </div>
+            <div className="mt-4 sm:mt-0">
+              <div className={`text-lg font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{user?.name}</div>
+              <div className={`text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{user?.email}</div>
+              <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{user?.farmLocation || 'No farm location set'}</div>
             </div>
           </div>
-
-          {isEditing ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name Field */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  <i className="fas fa-user mr-1"></i>
-                  Full Name / Jina kamili *
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="Enter your full name"
-                />
-              </div>
-
-              {/* Farm Location Field */}
-              <div>
-                <label htmlFor="farmLocation" className="block text-sm font-medium text-gray-700 mb-2">
-                  <i className="fas fa-map-marker-alt mr-1"></i>
-                  Farm Location / Mahali pa shamba
-                </label>
-                <select
-                  id="farmLocation"
-                  name="farmLocation"
-                  value={formData.farmLocation}
-                  onChange={handleChange}
-                  className="select-field"
-                >
-                  <option value="">Select your county / Chagua kaunti yako</option>
-                  {kenyanCounties.map((county) => (
-                    <option key={county} value={county}>
-                      {county} County
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="btn-secondary"
-                  disabled={isLoading}
-                >
-                  <i className="fas fa-times mr-2"></i>
-                  Cancel
-                </button>
-                
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <div className="spinner mr-2"></div>
-                      Updating...
-                    </div>
-                  ) : (
-                    <>
-                      <i className="fas fa-save mr-2"></i>
-                      Save Changes
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="space-y-6">
-              {/* Profile Picture */}
-              <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center">
-                  <i className="fas fa-user text-primary-600 text-2xl"></i>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{user.name}</h3>
-                  <p className="text-gray-500">{user.email}</p>
-                </div>
-              </div>
-
-              {/* Profile Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">
-                    Full Name
-                  </label>
-                  <p className="text-lg text-gray-900">{user.name}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">
-                    Email Address
-                  </label>
-                  <p className="text-lg text-gray-900">{user.email}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">
-                    Farm Location
-                  </label>
-                  <p className="text-lg text-gray-900">
-                    {user.farmLocation ? `${user.farmLocation} County` : 'Not specified'}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 uppercase tracking-wide mb-1">
-                    Member Since
-                  </label>
-                  <p className="text-lg text-gray-900">
-                    {user.createdAt ? formatDate(user.createdAt) : 'Recently joined'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="flex justify-end">
+            <button className="btn-primary">
+              <i className="fas fa-edit mr-2"></i> Edit Profile
+            </button>
+          </div>
         </div>
 
-        {/* Account Stats */}
-        <div className="mt-8 bg-white rounded-lg shadow-soft border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Account Overview - Muhtasari wa Akaunti
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 bg-primary-50 rounded-lg">
-              <div className="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                <i className="fas fa-seedling text-white"></i>
-              </div>
-              <p className="text-sm text-gray-600">Total Crops</p>
-              <p className="text-xl font-bold text-primary-600">-</p>
-            </div>
-            <div className="text-center p-4 bg-yellow-50 rounded-lg">
-              <div className="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center mx-auto mb-2">
-                <i className="fas fa-tasks text-white"></i>
-              </div>
-              <p className="text-sm text-gray-600">Total Tasks</p>
-              <p className="text-xl font-bold text-yellow-600">-</p>
-            </div>
+        {/* Account Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className={`rounded-lg p-6 shadow-soft border ${isDarkMode ? 'bg-green-900 border-green-800' : 'bg-green-50 border-green-200'}`}> 
+            <div className={`text-lg font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-green-900'}`}>Total Crops</div>
+            <div className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-green-900'}`}>{stats.crops}</div>
+          </div>
+          <div className={`rounded-lg p-6 shadow-soft border ${isDarkMode ? 'bg-yellow-900 border-yellow-800' : 'bg-yellow-50 border-yellow-200'}`}> 
+            <div className={`text-lg font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-yellow-900'}`}>Total Tasks</div>
+            <div className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-yellow-900'}`}>{stats.tasks}</div>
           </div>
         </div>
       </div>

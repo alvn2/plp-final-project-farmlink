@@ -9,10 +9,8 @@ const cropSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Crop name is required'],
-    enum: {
-      values: ['Maize', 'Beans', 'Sukuma Wiki', 'Tomatoes', 'Onions', 'Carrots', 'Cabbage', 'Other'],
-      message: 'Please select a valid crop type'
-    }
+    trim: true,
+    maxlength: [100, 'Crop name cannot exceed 100 characters']
   },
   plantingDate: {
     type: Date,
@@ -34,8 +32,8 @@ const cropSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Growing', 'Ready to Harvest', 'Harvested'],
-    default: 'Growing'
+    enum: ['Planning', 'Planted', 'Growing', 'Harvested', 'Failed'],
+    default: 'Planning'
   }
 }, {
   timestamps: true
@@ -55,10 +53,10 @@ cropSchema.virtual('growthProgress').get(function() {
   const now = new Date();
   const planted = new Date(this.plantingDate);
   const harvest = new Date(this.expectedHarvestDate);
-  
+
   const totalGrowthTime = harvest - planted;
   const elapsedTime = now - planted;
-  
+
   const progress = Math.min(Math.max((elapsedTime / totalGrowthTime) * 100, 0), 100);
   return Math.round(progress);
 });

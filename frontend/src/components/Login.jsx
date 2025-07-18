@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDarkMode } from '../context/DarkModeContext';
 import LoadingSpinner from './LoadingSpinner';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,6 +16,7 @@ const Login = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { isDarkMode } = useDarkMode();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,6 +26,13 @@ const Login = () => {
     }));
     // Clear error when user starts typing
     if (error) setError('');
+  };
+
+  const handleRememberMe = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      rememberMe: e.target.checked
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -63,11 +73,16 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
-        {/* Login Form */}
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          
+    <div className={`min-h-screen flex items-center justify-center py-8 transition-colors duration-200 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className={`w-full max-w-md mx-auto p-8 rounded-xl shadow-soft border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-14 h-14 bg-primary-100 rounded-full flex items-center justify-center mb-4">
+            <i className="fas fa-seedling text-primary-600 text-2xl"></i>
+          </div>
+          <h1 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Sign In to FarmLink</h1>
+          <p className={`text-gray-500 text-center mb-1 ${isDarkMode ? 'text-gray-300' : ''}`}>Ingia kwenye akaunti yako - Welcome back!</p>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Error Message */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-fade-in">
@@ -77,43 +92,39 @@ const Login = () => {
               </div>
             </div>
           )}
-
-          {/* Email Field */}
+          {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              <i className="fas fa-envelope mr-1"></i>
-              Email Address / Barua pepe
+            <label htmlFor="email" className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+              <i className="fas fa-envelope mr-1"></i> Email Address / Barua pepe
             </label>
             <input
               id="email"
               name="email"
               type="email"
-              autoComplete="email"
               required
               value={formData.email}
               onChange={handleChange}
-              className="input-field"
+              className={`input-field ${isDarkMode ? 'dark' : ''}`}
               placeholder="Enter your email address"
+              autoComplete="email"
             />
           </div>
-
-          {/* Password Field */}
+          {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              <i className="fas fa-lock mr-1"></i>
-              Password / Nywila
+            <label htmlFor="password" className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+              <i className="fas fa-lock mr-1"></i> Password / Nywila
             </label>
             <div className="relative">
               <input
                 id="password"
                 name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="input-field pr-10"
+                className={`input-field ${isDarkMode ? 'dark' : ''} pr-10`}
                 placeholder="Enter your password"
+                autoComplete="current-password"
               />
               <button
                 type="button"
@@ -124,37 +135,21 @@ const Login = () => {
               </button>
             </div>
           </div>
-
-          {/* Remember Me & Forgot Password */}
+          {/* Remember Me and Forgot Password */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
+            <label className="flex items-center text-sm">
               <input
-                id="remember-me"
-                name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                checked={formData.rememberMe}
+                onChange={handleRememberMe}
+                className="mr-2"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="text-primary-600 hover:text-primary-500 font-medium"
-              >
-                Forgot password?
-              </Link>
-            </div>
+              <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Remember me</span>
+            </label>
+            <Link to="/forgot-password" className="text-primary-600 hover:underline text-sm">Forgot password?</Link>
           </div>
-
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button type="submit" className="btn-primary w-full text-lg">
             {isLoading ? (
               <div className="flex items-center justify-center">
                 <div className="spinner mr-2"></div>
@@ -162,33 +157,13 @@ const Login = () => {
               </div>
             ) : (
               <>
-                <i className="fas fa-sign-in-alt mr-2"></i>
-                Sign In - Ingia
+                <i className="fas fa-sign-in-alt mr-2"></i> Sign In - Ingia
               </>
             )}
           </button>
-
-          {/* Register Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account yet?{' '}
-              <Link
-                to="/register"
-                className="text-primary-600 hover:text-primary-500 font-medium"
-              >
-                Register here - Jisajili hapa
-              </Link>
-            </p>
-          </div>
         </form>
-
-        {/* Additional Info */}
-        <div className="text-center">
-          <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
-            <span><i className="fas fa-shield-alt"></i> Secure</span>
-            <span><i className="fas fa-mobile-alt"></i> Mobile Friendly</span>
-            <span><i className="fas fa-free-code-camp"></i> Free</span>
-          </div>
+        <div className="mt-6 text-center">
+          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Don't have an account yet? <Link to="/register" className="text-primary-600 hover:underline">Register here - Jisajili hapa</Link></p>
         </div>
       </div>
     </div>
