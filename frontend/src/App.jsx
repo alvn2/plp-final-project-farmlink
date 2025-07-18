@@ -16,6 +16,7 @@ import { DarkModeProvider, useDarkMode } from './context/DarkModeContext';
 import { ToastContainer } from './components/Toast';
 import Terms from './components/Terms';
 import Privacy from './components/Privacy';
+import ChatBox from './components/ChatBox';
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -203,6 +204,7 @@ function App() {
       <DarkModeProvider>
         <AuthProvider>
           <AppContent />
+          <ChatBox />
         </AuthProvider>
       </DarkModeProvider>
     </ToastContainer>

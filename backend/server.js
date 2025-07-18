@@ -12,6 +12,7 @@ const authRoutes = require('./routes/auth');
 const cropRoutes = require('./routes/crops');
 const taskRoutes = require('./routes/tasks');
 const monitoringRoutes = require('./routes/monitoring');
+const aiChatRoutes = require('./routes/aiChat');
 
 // Import middleware
 const { globalErrorHandler } = require('./middleware/errorHandler');
@@ -106,6 +107,7 @@ app.use('/api/tasks', taskRoutes);
 
 // Monitoring routes
 app.use('/api/monitoring', monitoringRoutes);
+app.use('/api/ai-chat', aiChatRoutes);
 
 // Handle 404 errors
 app.use('*', (req, res) => {
