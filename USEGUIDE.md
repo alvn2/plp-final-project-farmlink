@@ -1,6 +1,6 @@
 # FarmLink Usage Guide
 
-This guide will help you get started with FarmLink, whether you are a farmer or an admin. It covers registration, login, managing crops and tasks, and updating your profile.
+This guide will help you get started with FarmLink, whether you are a farmer or an admin. It covers registration, login, managing crops and tasks, updating your profile, and system monitoring.
 
 ---
 
@@ -11,13 +11,14 @@ This guide will help you get started with FarmLink, whether you are a farmer or 
 - [Managing Crops](#managing-crops)
 - [Managing Tasks](#managing-tasks)
 - [Profile Management](#profile-management)
+- [Monitoring & Health](#monitoring--health)
 - [Tips & Best Practices](#tips--best-practices)
 
 ---
 
 ## Registering a New Account
 1. Go to the registration page (`/register`).
-2. Fill in your full name, email, password, and (optionally) your farm location (county).
+2. Fill in your full name, email, password, and (optionally) your farm location (county) and phone number.
 3. Password must be at least 6 characters.
 4. Click **Register**. If successful, you will be redirected to your dashboard.
 
@@ -28,7 +29,7 @@ This guide will help you get started with FarmLink, whether you are a farmer or 
 
 ## Dashboard Overview
 - The dashboard provides a summary of your crops and tasks, including:
-  - Number of crops by status (Growing, Ready to Harvest, Harvested)
+  - Number of crops by status (Planning, Planted, Growing, Harvested, Failed)
   - Upcoming harvests
   - Recent tasks and overdue tasks
   - Visual charts for quick insights
@@ -37,7 +38,7 @@ This guide will help you get started with FarmLink, whether you are a farmer or 
 ### Add a New Crop
 1. Navigate to **Crops** from the navbar.
 2. Click **Add New Crop**.
-3. Fill in crop type, planting date, expected harvest date, and notes.
+3. Fill in crop type, planting date, expected harvest date, status, and notes.
 4. Click **Save**. The crop will appear in your crop list.
 
 ### Edit or Delete a Crop
@@ -49,7 +50,7 @@ This guide will help you get started with FarmLink, whether you are a farmer or 
 ### Add a New Task
 1. Navigate to **Tasks** from the navbar.
 2. Click **Add New Task**.
-3. Select the crop, enter a description, due date, and priority.
+3. Select the crop, enter a description, due date, priority, and (optionally) category and notes.
 4. Click **Save**. The task will appear in your task list.
 
 ### Edit, Complete, or Delete a Task
@@ -59,14 +60,18 @@ This guide will help you get started with FarmLink, whether you are a farmer or 
 
 ## Profile Management
 - Go to **Profile** from the navbar.
-- Update your name or farm location.
+- Update your name, farm location, or phone number.
 - Changes are saved immediately.
+
+## Monitoring & Health
+- Admins and advanced users can access system health, metrics, and performance dashboards via `/api/monitoring/*` endpoints (see [API.md](API.md)).
+- Use these endpoints to check backend health, performance, and error summaries.
 
 ## Tips & Best Practices
 - **Keep your crop and task data up to date** for accurate analytics.
 - **Use the dashboard charts** to plan your farming activities.
 - **Log out** when using a shared device for security.
-- **Admins** can use the same interface but may have additional privileges (future feature).
+- **Admins** can use the monitoring endpoints for system health and troubleshooting.
 
 ---
 

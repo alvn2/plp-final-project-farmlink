@@ -1,6 +1,6 @@
 # FarmLink Architecture
 
-FarmLink is a modern web application with a clear separation between frontend and backend, using RESTful APIs and JWT authentication. Below is an overview of the system architecture, data flow, and technology stack.
+FarmLink is a modern web application with a clear separation between frontend and backend, using RESTful APIs, JWT authentication, and built-in system monitoring. Below is an overview of the system architecture, data flow, and technology stack.
 
 ---
 
@@ -11,21 +11,24 @@ FarmLink is a modern web application with a clear separation between frontend an
 |  Frontend   | <--------------------> |   Backend   | <---->   MongoDB    |
 |  (React)    |                        | (Express)   |        (Database)   |
 +-------------+                        +-------------+                    |
+                                        |                                 |
+                                        +-- Monitoring & Health Endpoints |
 ```
 
 ---
 
 ## Technology Stack
 - **Frontend:** React, React Router, Chart.js, Tailwind CSS, Axios
-- **Backend:** Node.js, Express, Mongoose, JWT, CORS
+- **Backend:** Node.js, Express, Mongoose, JWT, CORS, Monitoring
 - **Database:** MongoDB (local or cloud)
 - **Authentication:** JWT (JSON Web Tokens)
+- **Monitoring:** Custom endpoints for health, metrics, and performance
 
 ---
 
 ## Data Flow
 1. **User interacts with the frontend** (e.g., registers, logs in, manages crops/tasks).
-2. **Frontend sends HTTP requests** to backend API endpoints (e.g., `/api/auth/login`, `/api/crops`).
+2. **Frontend sends HTTP requests** to backend API endpoints (e.g., `/api/auth/login`, `/api/crops`, `/api/monitoring/health`).
 3. **Backend authenticates requests** (using JWT for protected routes) and interacts with MongoDB via Mongoose models.
 4. **Backend returns JSON responses** to the frontend.
 5. **Frontend updates UI** based on API responses.
@@ -41,9 +44,9 @@ FarmLink is a modern web application with a clear separation between frontend an
 
 ### Backend
 - **server.js**: Express app setup, middleware, error handling, and route mounting.
-- **Routes**: `/api/auth`, `/api/crops`, `/api/tasks`.
+- **Routes**: `/api/auth`, `/api/crops`, `/api/tasks`, `/api/monitoring`.
 - **Models**: User, Crop, Task (Mongoose schemas).
-- **Middleware**: Auth (JWT verification).
+- **Middleware**: Auth (JWT verification), Validation, Monitoring.
 
 ---
 
@@ -76,7 +79,16 @@ sequenceDiagram
     MongoDB-->>Backend: Success/Failure
     Backend-->>Frontend: JSON response
     Frontend-->>User: UI updates
+    Backend->>Backend: Monitoring middleware logs request/response
+    Backend->>Backend: Monitoring endpoints provide health/metrics
 ```
+
+---
+
+## Data Model Highlights
+- **User**: name, email, password, farmLocation, phoneNumber
+- **Crop**: name, plantingDate, expectedHarvestDate, notes, status, userId, createdAt, updatedAt, daysUntilHarvest, growthProgress
+- **Task**: cropId, description, dueDate, status, priority, category, estimatedDuration, notes, userId, createdAt, updatedAt, daysUntilDue, isOverdue
 
 ---
 

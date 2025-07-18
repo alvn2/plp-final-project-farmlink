@@ -45,9 +45,9 @@ The app runs on [http://localhost:5173](http://localhost:5173) by default.
 - **Navbar**: Navigation bar with user info and links
 - **Dashboard**: Crop/task stats and charts
 - **CropList**: List, filter, and manage crops
-- **CropForm**: Add/edit crop details
+- **CropForm**: Add/edit crop details (now supports status, notes)
 - **TaskList**: List, filter, and manage tasks
-- **TaskForm**: Add/edit farm tasks
+- **TaskForm**: Add/edit farm tasks (now supports priority, category, notes)
 - **Profile**: View and update user profile
 - **Register/Login**: User authentication forms
 - **AuthContext**: Provides authentication state and methods
@@ -61,6 +61,11 @@ See [../USEGUIDE.md](../USEGUIDE.md) for step-by-step instructions.
 
 ## Architecture
 See [../ARCHITECTURE.md](../ARCHITECTURE.md) for system design and data flow.
+
+---
+
+## Monitoring & Health
+FarmLink supports backend monitoring endpoints for health, metrics, and performance. See [../API.md](../API.md) for details.
 
 ---
 
