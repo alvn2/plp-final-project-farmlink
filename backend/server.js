@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-// const cors = require('cors');
+const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -74,11 +74,21 @@ const allowedOrigins = [
   'http://127.0.0.1:3000',
   'http://127.0.0.1:3001',
   'http://127.0.0.1:5173',
-  process.env.FRONTEND_URL || 'https://farmlinkkenya.vercel.app',
-  'https://farmlinkkenya.vercel.app/register',
-  'https://farmlinkkenya.vercel.app/login'
-].filter(Boolean);
-console.log('✅ Allowed origins:', allowedOrigins);
+  'https://farmlinkkenya.vercel.app',
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+}));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
