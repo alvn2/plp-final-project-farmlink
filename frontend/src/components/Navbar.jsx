@@ -89,6 +89,28 @@ const Navbar = () => {
                   </span>
                 </div>
 
+                {/* External Links */}
+                <div className="hidden lg:flex items-center space-x-2">
+                  <a
+                    href="https://farmlinkkenya.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-primary-600 px-2 py-1 rounded text-xs font-medium transition-colors flex items-center space-x-1"
+                  >
+                    <i className="fas fa-external-link-alt text-xs"></i>
+                    <span>App</span>
+                  </a>
+                  <a
+                    href="https://docs.google.com/presentation/d/1tSK5vRTx5I8TUvpq8L6WVx-MA4edK3aqlrnvZRLdtmA/edit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-primary-600 px-2 py-1 rounded text-xs font-medium transition-colors flex items-center space-x-1"
+                  >
+                    <i className="fas fa-presentation text-xs"></i>
+                    <span>Deck</span>
+                  </a>
+                </div>
+
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
@@ -145,8 +167,32 @@ const Navbar = () => {
                 </Link>
               ))}
               
+              {/* Mobile External Links */}
+              <div className="px-3 py-2 border-t border-gray-200">
+                <div className="flex flex-col space-y-2">
+                  <a
+                    href="https://farmlinkkenya.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-primary-600 text-sm font-medium flex items-center space-x-2"
+                  >
+                    <i className="fas fa-external-link-alt"></i>
+                    <span>Live Application</span>
+                  </a>
+                  <a
+                    href="https://docs.google.com/presentation/d/1tSK5vRTx5I8TUvpq8L6WVx-MA4edK3aqlrnvZRLdtmA/edit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-primary-600 text-sm font-medium flex items-center space-x-2"
+                  >
+                    <i className="fas fa-presentation"></i>
+                    <span>Pitch Deck</span>
+                  </a>
+                </div>
+              </div>
+
               {/* Mobile User Info */}
-              <div className="px-3 py-2 border-t border-gray-200 mt-2">
+              <div className="px-3 py-2 border-t border-gray-200">
                 <div className="text-sm">
                   <p className="font-medium text-gray-900">{user.name}</p>
                   <p className="text-gray-500">{user.email}</p>

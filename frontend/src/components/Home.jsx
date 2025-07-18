@@ -90,6 +90,28 @@ const Home = () => {
               </Link>
             </div>
 
+            {/* External Links */}
+            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <a 
+                href="https://farmlinkkenya.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                <i className="fas fa-external-link-alt mr-2"></i>
+                Live App
+              </a>
+              <a 
+                href="https://docs.google.com/presentation/d/1tSK5vRTx5I8TUvpq8L6WVx-MA4edK3aqlrnvZRLdtmA/edit" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                <i className="fas fa-presentation mr-2"></i>
+                Pitch Deck
+              </a>
+            </div>
+
             <div className="mt-12 text-center">
               <p className="text-gray-500 mb-4">Over 70% of Kenyans depend on agriculture</p>
               <div className="flex items-center justify-center space-x-8 text-sm text-gray-400">
@@ -274,10 +296,33 @@ const Home = () => {
           </div>
 
           <div className="mt-8 text-primary-200">
-            <p className="text-sm">
+            <p className="text-sm mb-4">
               <i className="fas fa-shield-alt mr-1"></i>
               Free forever • No credit card required • Secure & Private
             </p>
+            
+            {/* Additional Links */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center text-sm">
+              <a 
+                href="https://farmlinkkenya.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary-200 hover:text-white transition-colors flex items-center"
+              >
+                <i className="fas fa-external-link-alt mr-1"></i>
+                Live Application
+              </a>
+              <span className="text-primary-300 hidden sm:inline">•</span>
+              <a 
+                href="https://docs.google.com/presentation/d/1tSK5vRTx5I8TUvpq8L6WVx-MA4edK3aqlrnvZRLdtmA/edit" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary-200 hover:text-white transition-colors flex items-center"
+              >
+                <i className="fas fa-presentation mr-1"></i>
+                View Pitch Deck
+              </a>
+            </div>
           </div>
         </div>
       </section>

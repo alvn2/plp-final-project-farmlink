@@ -6,6 +6,10 @@ FarmLink is a full-stack web application designed to help smallholder farmers in
 - **Frontend:** React, React Router, Chart.js, Tailwind CSS ([see frontend/README.md](frontend/README.md))
 - **Backend:** Node.js, Express, MongoDB, JWT authentication ([see backend/README.md](backend/README.md))
 
+## Live Application & Resources
+- **🌐 Live App:** [FarmLink Kenya](https://farmlinkkenya.vercel.app/)
+- **📊 Pitch Deck:** [FarmLink Presentation](https://docs.google.com/presentation/d/1tSK5vRTx5I8TUvpq8L6WVx-MA4edK3aqlrnvZRLdtmA/edit)
+
 ---
 
 ## Table of Contents
